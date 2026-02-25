@@ -8,26 +8,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
 
-    - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential git
 
-    - name: Install PVSnesLib
-      run: |
-        sudo apt update
-        sudo apt install -y build-essential git python3
+      - name: Clone PVSnesLib
+        run: |
+          git clone --depth=1 https://github.com/alekmaul/pvsneslib.git
+          echo "PVSNESLIB_HOME=$GITHUB_WORKSPACE/pvsneslib" >> $GITHUB_ENV
 
-        git clone https://github.com/alekmaul/pvsneslib.git
+      - name: Install devkitsnes (toolchain)
+        run: |
+          cd "$GITHUB_WORKSPACE/pvsneslib"
+          echo "=== tools/ contents ==="
+          ls -la tools || true
 
-        echo "PVSNESLIB_HOME=$PWD/pvsneslib" >> $GITHUB_ENV
-        echo "$PWD/pvsneslib/devkitsnes/bin" >> $GITHUB_PATH
+          SCRIPT="$(ls tools | grep -i devkitsnes | head -n 1 || true)"
+          if [ -z "$SCRIPT" ]; then
+            echo "ERRO: Não encontrei script de instalação do devkitsnes em pvsneslib/tools/"
+            exit 1
+          fi
 
-    - name: Build Game
-      run: |
-        export PVSNESLIB_HOME=$PWD/pvsneslib
-        make
+          echo "Usando script: tools/$SCRIPT"
+          chmod +x "tools/$SCRIPT"
+          bash "tools/$SCRIPT"
 
-    - name: Upload ROM
-      uses: actions/upload-artifact@v4
-      with:
-        name: fukka-rom
-        path: "*.sfc"
+          echo "$GITHUB_WORKSPACE/pvsneslib/devkitsnes/bin" >> $GITHUB_PATH
+
+      - name: Build ROM
+        run: |
+          which 816-tcc
+          make
+
+      - name: Upload ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: fukka-rom
+          path: "*.sfc"
