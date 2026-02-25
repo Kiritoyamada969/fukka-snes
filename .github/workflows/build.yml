@@ -1,0 +1,26 @@
+name: Build SNES ROM
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install tools
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential gcc make
+
+    - name: Build ROM
+      run: |
+        make
+
+    - name: Upload ROM
+      uses: actions/upload-artifact@v3
+      with:
+        name: fukka-rom
+        path: "*.sfc"
