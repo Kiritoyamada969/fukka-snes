@@ -18,23 +18,26 @@ jobs:
       - name: Clone PVSnesLib
         run: |
           git clone https://github.com/alekmaul/pvsneslib.git
-          echo "PVSNESLIB_HOME=$GITHUB_WORKSPACE/pvsneslib" >> $GITHUB_ENV
 
-      - name: Build SNES tools
+      - name: Build tools
         run: |
           cd pvsneslib/tools
           make
 
+      - name: Locate compiler
+        run: |
+          find pvsneslib -name "816-tcc"
+
       - name: Build ROM
         run: |
-          export PVSNESLIB_HOME=$GITHUB_WORKSPACE/pvsneslib
+          COMPILER=$(find pvsneslib -name 816-tcc | head -n 1)
 
-          $PVSNESLIB_HOME/tools/816-opt/816-tcc \
-          -I$PVSNESLIB_HOME/include \
+          $COMPILER \
+          -Ipvsneslib/include \
           -O2 \
           -o fukka.elf \
           main.c \
-          -L$PVSNESLIB_HOME/lib \
+          -Lpvsneslib/lib \
           -lpvsneslib
 
       - name: Upload ROM
