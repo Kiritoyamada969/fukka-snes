@@ -17,34 +17,28 @@ jobs:
 
       - name: Clone PVSnesLib
         run: |
-          git clone --depth=1 https://github.com/alekmaul/pvsneslib.git
+          git clone https://github.com/alekmaul/pvsneslib.git
           echo "PVSNESLIB_HOME=$GITHUB_WORKSPACE/pvsneslib" >> $GITHUB_ENV
 
-      - name: Install devkitsnes (toolchain)
+      - name: Build SNES tools
         run: |
-          cd "$GITHUB_WORKSPACE/pvsneslib"
-          echo "=== tools/ contents ==="
-          ls -la tools || true
-
-          SCRIPT="$(ls tools | grep -i devkitsnes | head -n 1 || true)"
-          if [ -z "$SCRIPT" ]; then
-            echo "ERRO: Não encontrei script de instalação do devkitsnes em pvsneslib/tools/"
-            exit 1
-          fi
-
-          echo "Usando script: tools/$SCRIPT"
-          chmod +x "tools/$SCRIPT"
-          bash "tools/$SCRIPT"
-
-          echo "$GITHUB_WORKSPACE/pvsneslib/devkitsnes/bin" >> $GITHUB_PATH
+          cd pvsneslib/tools
+          make
 
       - name: Build ROM
         run: |
-          which 816-tcc
-          make
+          export PVSNESLIB_HOME=$GITHUB_WORKSPACE/pvsneslib
+
+          $PVSNESLIB_HOME/tools/816-opt/816-tcc \
+          -I$PVSNESLIB_HOME/include \
+          -O2 \
+          -o fukka.elf \
+          main.c \
+          -L$PVSNESLIB_HOME/lib \
+          -lpvsneslib
 
       - name: Upload ROM
         uses: actions/upload-artifact@v4
         with:
           name: fukka-rom
-          path: "*.sfc"
+          path: "*.elf"
