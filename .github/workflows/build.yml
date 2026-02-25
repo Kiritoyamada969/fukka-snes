@@ -1,25 +1,30 @@
 name: Build SNES ROM
 
-on:
-  push:
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Install tools
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential gcc make
+    - name: Install SNES Tools
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential git
 
-      - name: Build ROM
-        run: |
-          make
+        git clone https://github.com/alekmaul/pvsneslib.git
+        cd pvsneslib/tools
+        make
+        export PATH=$PATH:$PWD
 
-      - name: Upload ROM
-        uses: actions/upload-artifact@v4
-        with:
-          name: fukka-rom
-          path: "*.sfc"
+    - name: Build ROM
+      run: |
+        make
+
+    - name: Upload ROM
+      uses: actions/upload-artifact@v4
+      with:
+        name: fukka-rom
+        path: "*.sfc"
