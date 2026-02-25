@@ -1,26 +1,29 @@
 name: Build SNES ROM
 
-on: [push]
+on:
+  push:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v4
 
-    - name: Install SNES Tools
+    - name: Install PVSnesLib
       run: |
         sudo apt update
-        sudo apt install -y build-essential git
+        sudo apt install -y build-essential git python3
 
         git clone https://github.com/alekmaul/pvsneslib.git
-        cd pvsneslib/tools
-        make
-        export PATH=$PATH:$PWD
 
-    - name: Build ROM
+        echo "PVSNESLIB_HOME=$PWD/pvsneslib" >> $GITHUB_ENV
+        echo "$PWD/pvsneslib/devkitsnes/bin" >> $GITHUB_PATH
+
+    - name: Build Game
       run: |
+        export PVSNESLIB_HOME=$PWD/pvsneslib
         make
 
     - name: Upload ROM
