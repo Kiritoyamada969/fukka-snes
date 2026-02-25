@@ -24,24 +24,17 @@ jobs:
           cd pvsneslib/tools
           make
 
-      - name: Locate compiler
+      - name: Setup paths
         run: |
-          find pvsneslib -name "816-tcc"
+          export PVSNESLIB_HOME=$GITHUB_WORKSPACE/pvsneslib
+          echo "PVSNESLIB_HOME=$GITHUB_WORKSPACE/pvsneslib" >> $GITHUB_ENV
 
       - name: Build ROM
         run: |
-          COMPILER=$(find pvsneslib -name 816-tcc | head -n 1)
-
-          $COMPILER \
-          -Ipvsneslib/include \
-          -O2 \
-          -o fukka.elf \
-          main.c \
-          -Lpvsneslib/lib \
-          -lpvsneslib
+          make
 
       - name: Upload ROM
         uses: actions/upload-artifact@v4
         with:
           name: fukka-rom
-          path: "*.elf"
+          path: "*.sfc"
