@@ -1,19 +1,15 @@
-
-# PVSnesLib project (devkitPro)
-# Expected environment:
-#   export PVSNESLIB=/path/to/pvsneslib
-# Build:
-#   make
-
-ROMNAME = fukka_snes
-
-CC      = 816-tcc
-CFLAGS  = -I$(PVSNESLIB)/include -O2
-LDFLAGS = -L$(PVSNESLIB)/lib -lpvsneslib
+ROMNAME = fukka
 
 all:
-	$(CC) $(CFLAGS) -o $(ROMNAME).elf main.c $(LDFLAGS)
-	816-tcc -o $(ROMNAME).sfc $(ROMNAME).elf
+	$(PVSNESLIB_HOME)/devkitsnes/bin/816-tcc \
+	-I$(PVSNESLIB_HOME)/include \
+	-O2 \
+	-o $(ROMNAME).elf \
+	main.c \
+	-L$(PVSNESLIB_HOME)/lib \
+	-lpvsneslib
 
-clean:
-	rm -f *.elf *.sfc
+	$(PVSNESLIB_HOME)/devkitsnes/bin/816-objcopy \
+	-O binary \
+	$(ROMNAME).elf \
+	$(ROMNAME).sfc
