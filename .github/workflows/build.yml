@@ -6,21 +6,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Install tools
-      run: |
-        sudo apt update
-        sudo apt install -y build-essential gcc make
+      - name: Install tools
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential gcc make
 
-    - name: Build ROM
-      run: |
-        make
+      - name: Build ROM
+        run: |
+          make
 
-    - name: Upload ROM
-      uses: actions/upload-artifact@v3
-      with:
-        name: fukka-rom
-        path: "*.sfc"
+      - name: Upload ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: fukka-rom
+          path: "*.sfc"
